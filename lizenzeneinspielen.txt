@@ -1,0 +1,40 @@
+==============================================================
+Diese Anleitung wurde von Yi Miao erstellt
+2025-06-03
+==============================================================
+Wenn keine Lizenz-Datei in D:\Enaio\Lizenzen\Produktiv abgelegt wird, dann
+wird die Lizenzdatei aus dem Ordner "P:\DVV-Datenaustausch\DMS\DMS-DEMO VMs\Lizenz-bis-2026-04-02" kopiert und in den obigen Zielordner abgelegt.
+Danach wird noch eine Kopie von der Lizenzdatei erstellt und umbenannt als "ASLIC.dat".
+*********************************************************************************************************************************************************************
+
+Dann startet man SQL Server Management Studio als Administrator und meldet sich mit den folgenden Zugangsdaten an:
+SQL Server Management Studio
+Benutzer: sys_enaio
+Password: StopM8mD!?
+*********************************************************************************************************************************************************************
+
+Jetzt start man die exe-Datei als Administrator: 
+D:\Enaio\Applikation\server\axliccfgeditor.exe
+(P.S. Powershell-Befehl: Start-process axliccfgeditor.exe -verb RunAs)
+Dann wird ein Fenster mit dem Title "Lizenz Imp-Export" geöffnet. 
+Man kann hier die folgenden Daten eingeben: 
+DSN: enaio
+Benutzername: sys_enaio
+Password: StopM8mD!?
+-> Import klicken
+*********************************************************************************************************************************************************************
+
+Zudem überprüft man, ob Lizenz schon importiert wurde:
+man startet "enaio enterprise-manager" -> unter "Enterprise Manager" sollte "enaio - System" stehen. Hier sollte es kein rotes Kreuz geben.
+-> Verwaltung -> Lizenzeinstellungen -> Lizenzen: man klickt rechts auf "Lizenzen" -> "Alle Aufgaben" -> "Lizenzdatei anzeigen":
+Hier wird ein Fenster mit dem Titel "Lizenzviewer" geöffnet: 
+-> enaio - System -> Modul: 
+Hier sollten alle Modulen für die Lizenz angezeigt werden. 
+*********************************************************************************************************************************************************************
+
+Dann öffnet man System-Dienst, 
+(P.S. Powershell-Befehl: Start-Process services.msc)
+um "enaio Server" zu starten. 
+*********************************************************************************************************************************************************************
+
+Bis hier kann man enaio-Client öffnen und den Schrank Azubi-Akte sehen.
