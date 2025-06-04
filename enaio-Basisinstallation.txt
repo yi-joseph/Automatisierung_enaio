@@ -1,0 +1,7 @@
+# 1
+# Zwei Systemkonten erstellen:
+# adm_enaio
+              # Lokaler Administrator, Administratorgruppe
+# svc_enaio 
+              # Dienste,               Administratorgruppe
+
