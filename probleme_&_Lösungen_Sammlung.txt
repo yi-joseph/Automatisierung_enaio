@@ -1,0 +1,11 @@
+# 1
+# wenn manche Applikationen von enaio services offline sind: 
+# Hier ist die Webseite: http://localhost:7273
+# Denkrichtung: die neueste Logdatei anschauen. 
+# Pfad: D:\Enaio\Applikation\services\elasticsearch7\logs
+# Ich nehme die neuste Datei und sehe ich die Zeilen ganz unter, was genau der Fehler ist. 
+# Die Lösung hier ist: 
+# enaio enterprise manager -> Console Root -> Enterprise Manager -> enaio - System -> Servergruppen -> Ulm -> 
+# Applikationsserver -> Server 3 (Hostname/OSDRT) -> Einstellungen -> Servereigenschaften: auf der rechten Seite: "Kategorie" -> "Services" -> "Rendition-Cache" -> 
+# "Service-Endpoint für Direkzugriff" -> "http://WIN-OSOLDK3G682:8070/osrenditioncache"
+# "Service-Endpoint" -> "http://WIN-OSOLDK3G682/osrenditioncache"
