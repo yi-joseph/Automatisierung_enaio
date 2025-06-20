@@ -1,0 +1,1162 @@
+Enaio-Basisinstallation 11.10 Anleitungshilfe: 
+
+
+VMWare erstellen: 
+Memory 8 GB
+Processors 8 
+Hard Disk 60 GB
+Hard Disk 60 GB
+Hard Disk 30 GB 
+
+Zuerst überprüfe ich, ob ISO noch in DVD bleibt; wenn nicht, dann
+„My Computer“ -> „enaio BaIn_11.10_3“: rechtsklicken -> „Settings…“ -> CD/DVD (SATA) -> „Device status“ -> „Connected“ Hacken nehmen
+   	->“Connect at power on“ Hacken nehmen
+„Connection“ ->“Use ISO image file“ ->“C:\Training_30_04_2025 verschieb\VM+enaio-Training\Server_2022.ISO“ -> „OK“
+
+Speicherort: z.B.
+P:\DVV-Datenaustausch\DMS\DMS-DEMO VMs\DMS-DEMO VM - YMIAO - ENAIO 11.10_3
+
+
+Phase 1: System für enaio-Basisinstallation vorbereiten. 
+Jetzt führe ich Basis-Einstellungen für Windows aus: 
+IP-Adresse konfigurieren, Computernamen ändern, Laufwerk initialisieren und umbenennen, zwei Systemkonten erstellen. 
+
+Powershell-> „An Taskleiste anheften“
+Reihenfolgen: 
+Zuerst IP-Adresse und Computernamen ändern.
+
+1.	Datenträger D und E initialisieren
+Computerverwaltung -> Datenträgerverwaltung
+(compmgmt.msc)
+
+
+
+2.	Zwei Systemkonten erstellen:
+adm_enaio	optimal
+svc_enaio 	optimal
+Dafür muss man Richtlinien für Lokaler Computer konfigurieren: 
+„Suchen“: Gruppenrichtlinie bearbeiten -> Windows-Einstellungen -> Sicherheitseinstellungen -> Kontorichtlinien -> Kennwortrichtlinien -> Kennwort muss Komplexitätsvoraussetzungen entsprechen: Deaktivieren
+Dann kann man die Passworde von den beiden Konten als "optimal" einsetzen.  
+
+Jetzt erstelle ich zwei Systemskonten: 
+Windows + x -> Computerverwaltung -> System -> Lokale Benutzer und Gruppen -> Benutzer -> adm_enaio:
+Rechtsklicken -> Kennwort festlegen -> Neues Kennwort: optimal
+Ich mache das gleiche für svc_enaio
+ "Gruppen" -> "Administratoren" -> rechtsklicken -> "Eigenschaften" 
+ -> "Mitglieder" -> "Hinzufügen" -> "adm_enaio" -> "Namenüberprüfen"   					                              -> "svc_enaio" -> "Namenüberprüfen"
+
+3.	Computername und IP-Adresse ändern: 
+Computername: Enaio_BI
+(P.S.: Powershell-Befehl: 
+Rename-Computer -NewName "Enaio_Basis" -Force -Restart)
+
+IP-Adresse: 195.127.121.112
+255.255.255.0
+Windows + R -> ncpa.cpl
+Oder per Powershell das Fenter von "Netzwerkverbindungen" öffnen:
+ 
+ncpa.cpl
+Dann überprüfen, ob es richtig ist:
+ipconfig /all
+ 
+4.	Per Powershell-Script die Ordner für Enaio-Installation automatisch erstellen
+Das Script heißt "Ordner erstellen D & E mit Berechtigungen mit SQL.ps1"
+Von  "P:\DVV-Datenaustausch\DMS\iso-images" herunterladen
+Und in den Downloads Ordner von VM kopieren. 
+Dann in Console das Skript ausführen
+ 
+5.	ISO-Datei von enaio in den Ordner D:\Enaio\Installations_CD kopieren
+Die ISO-Datei von enaio steht unter dem Ordner "20250313 - enaio-11.10", dies ist die Enaio 11.10, 
+Es gibt noch andere Versionen von enaio, die ich auch installieren üben muss. 
+ 
+6.	Dateien für D:\Enaio\AutomatischeAktionen herunterladen und darin kopieren. 
+Die Dateien sind in FileZilla: 
+Server: 10.150.2.21
+Benutzer: dokumea
+Passwort: EjHDQgOr
+ 
+Zuerst anmelden,
+Dann unter dem Ordner die Dateien herunterladen: 
+/ -> Lösungen_DMS_Tools -> DMS_Basis -> AutomatischeAktionen
+Das sind die originalen Dateien: 
+ 
+ 
+Aber ich brauche die "start_Services_enaio" nicht und muss die löschen.
+Weil dieses Skript die alten Namen für enaio enthält, 
+Das ist der alte Name: z.B.: enaio_blueline_gateway
+Mit "blueline".
+Dann umbenenne ich die Datei "start_Services_enaio_10.10" als "start_Services_enaio", weil diese Datei zu den neuen Namen von enaio passt, aber ich brauche den Dateinamen "start_Services_enaio".
+Das ist richtige Menge von den Dateien:
+ 
+Und den Ordner "Robocopy" in den Order von VM D:\Enaio\Tools kopieren:
+Der Ordner "Robocopy" befindet sich in FileZilla: 
+/ -> Lösung_DMS_Tools -> DMS_Basis -> Robocopy
+ 
+ 
+7.	Notepad++ auf dem VM installieren:
+Die Installationsdatei von Notepad++ herunterladen und in den Ornder "Download" von VM kopieren
+Dann installieren mit Administrator.
+ 
+8.	Lizenz von Enaio beantragen:
+Lizenzdatei liegt in:
+"P:\DVV-Datenaustausch\DMS\DMS-DEMO VMs\Lizenz-bis-2026-04-02"
+Diese Lizenz heißt:
+ASLIC_0339-OSVK_577
+Man kann auch die Lizenz von dem Ordner nehmen: "Lizenz_unlimited_NUR zu TESTZWECKEN !!" 
+Diese Lizenz heißt: 
+ASLIC_0339-OSVK_575
+ 
+Die größere Nummer bedeutet neuere Lizenz. 
+ 
+Hier nehme ich die 575. 
+ 
+Kopieren die Lizenz in den Ordner:
+D:\Enaio\Lizenzen\Produktiv
+ 
+Jetzt kopiere ich die Lizenz nochmal und umbenenne ich die als "ASLIC.dat"
+ 
+9.	Diese zwei exe-Dateien in den Ordner "Download" von VM ablegen: 
+de_sql_server_2019_express_with_advanced_services_x64_5be84a65.exe
+SSMS-Setup-DEU.exe
+Die liegen in: 
+"P:\DVV-Datenaustausch\DMS\iso-images"
+Diese zwei exe-Dateien muss ich auf VM installieren. 
+ 
+Phase 2: Systeminstallation auf Windows-Server vor Enaio-BaIn
+ Ziel: .NET Framework 3.5, Firewall-Konfiguration, MS SQL-Server, SSMS (MS SQL Server Management-Studio),  Datenbank-Einrichten, ODBC Datenquellen-Einrichten und Microsoft Visual C++ 2015-2022 installieren
+1.	Rolle und Feature hinzufügen für .NET Framework 3.5-Funktionen
+Bei "Installationsauswahl bestätigen" -> "Alternativen Quellpfad angeben" 
+Frage: es gibt keine Datei in DVD:
+ 
+ 
+Dieser Fehler liegt in VMWare, die ISO für Windows-Server wurde nicht in DVD-Laufwerk bereitgestellt. 
+Lösung: 
+Vmname: rechtsklicken: -> Settings -> Hardware -> "CD/DVD (SATA)" -> "Device status": vor "Connected" und "Connect at power on" müssen die Hacken gesetzt werden. 
+ 
+ 
+Danach kann man den Pfad finden: 
+B:\sources\sxs
+Wenn man mit doppeltem Klicken das Installationsfenster geöffnet hat, dann bendet man den Vorgang. 
+Dann rechtsklicken -> "Öffnen": 
+So kann man auch die ISO von Windows-Server auf DVD öffnen. 
+Jetzt installiere ich weiter .NET Framework 3.5: 
+Powershell-Befehl für Öffnen des Fenster "Rollen und Features hinzufügen":
+Start-Process ServerManager.exe
+Manuell klicken: Verwalten -> "Rollen und Features hinzufügen"
+Hier ist der Pfad:
+ 
+ 
+ 
+ 
+2.	Suchen: umgebungs -> "Systemumgebungsvariablen bearbeiten" 
+(Powershell-Befehl: 
+Start-Process SystemPropertiesAdvanced.exe)
+"Erweitert" -> "Umgebungsvariablen …" -> "Systemvariablen": "Path" -> "Bearbeiten…" -> "Neu" -> eingeben: "D:\Enaio\Applikation\clients\admin" -> 3 mals "OK"
+ 
+3.	Firewall-Konfigurieren: 
+Mit Powershell als Administrator folgende Befehle ausführen: 
+New-NetFirewallRule -DisplayName "SQLServer default instance" -Direction Inbound -LocalPort 1433, 4022, 135, 1434 -Protocol TCP -Action Allow
+ 
+New-NetFirewallRule -DisplayName "SQLServer Browser service" -Direction Inbound -LocalPort 1434 -Protocol UDP -Action Allow
+ 
+Wenn es nur einen enaio-Server gibt: 
+New-NetFirewallRule -DisplayName "enaio_prod" -Direction Inbound -LocalPort 4000, 80 -Protocol TCP -Action Allow
+ 
+New-NetFirewallRule -DisplayName "enaio_prod" -Direction Outbound -LocalPort 4000, 80 -Protocol TCP -Action Allow
+ 
+Wenn es mehrere enaio-Server gibt:
+Genauer siehe Claudias Anleitung S. 19
+ 
+New-NetFirewallRule -DisplayName "enaio_prod" -Direction Inbound -LocalPort 4000, 80, 8070, 8060, 7371, 7361, 7211, 7241, 8040, 8045, 7261, 7273, 7281, 7311, 7981, 7982, 7983, 7984, 7985, 7986, 7987, 7988, 7989, 8041, 8099, 8091, 8010, 7530, 8047, 8048, 7560, 7561, 7562, 7563, 7564, 7565, 7566, 7567, 7568, 7569, 7111, 7112, 7900, 8282, 8100 -Protocol TCP -Action Allow
+ 
+New-NetFirewallRule -DisplayName "enaio_prod" -Direction Outbound -LocalPort 4000, 80, 8070, 8060, 7371, 7361, 7211, 7241, 8040, 8045, 7261, 7273, 7281, 7311, 7981, 7982, 7983, 7984, 7985, 7986, 7987, 7988, 7989, 8041, 8099, 8091, 8010, 7530, 8047, 8048, 7560, 7561, 7562, 7563, 7564, 7565, 7566, 7567, 7568, 7569, 7111, 7112, 7900, 8282, 8100 -Protocol TCP -Action Allow
+ 
+4.	MS SQL-Server installieren als Administrator: 
+Und zwar die exe: 
+de_sql_server_2019_express_with_advanced_services_x64_5be84a65.exe
+ „Lizenzbedingungen“ -> „Ich akzeptiere die Lizenzbedingungen und Datenschutzbestimmungen“
+„Funktionsauswahl“ -> „Datenbank-Engine-Dienst“ -> „SQL Server-Replikation“ -> „Volltext- und semantische Extraktion für die Suche“ -> „Freigegebene Funktionen“ -> „Konnektivität der Clienttools“ -> „Abwärtskompatibilität der Clienttools“ -> „Clienttools SDK“ -> „SQL Client Connectivity SDK“
+
+"Benannte Instanz: " -> "ENAIO"
+"Instanz-ID": -> "ENAIO"
+"SQL Server-Browser" -> "Starttyp" -> "Automatisch"
+"Gemischter Modul (SQL Server-Authentifizierung und Windows-Authentifizierung)": 
+Passwort für Benutzer "SA" eingeben: 
+optimal
+"Datenverzeichnisse":  "E:\MSSQL\Data", "E:\MSSQL\Data", "E:\MSSQL\Log", "E:\MSSQL\Backup"
+"TempDB" -> "Anfangsgröße (MB)": 500
+-> "Automatische Vergrößerung (MB)": 500
+ 
+5.	MS SQL Server Management-Studio installieren, 
+Und zwar die exe-Datei als Administrator: 
+SSMS-Setup-DEU.exe
+(Powershell-Befehl:  Start-Process .\SSMS-Setup-DEU.exe -Verb RunAs)
+"Installieren"
+Hier ist ein neustarten erforderlich. 
+
+ 
+6.	SQL-Datenbank einrichten: 
+SQL Server Management Studio öffnen, 
+„Verbindung mit Server herstellen“: -> „Authentifizierung“ -> „SQL Server-Authentifizierung“ 
+„Anmeldename“ -> „sa“
+„Kennwort“ ->  „Optimal“
+„Verbinden“
+
+"Datenbanken": rechtsklicken -> "Neue Datenbank…"
+„Seite auswählen“ -> „Allgemein“
+"Datenbankname": "enaio_prod"
+„Datebbankdateien“
+„enaio_prod“ -> "Anfangsgröße (MB)": 500 -> "Automatische Vergrößerung/Maximale Größe":  -> „Um 500 MB, unbegrenzt“
+"enaio_prod_log" -> "Anfangsgröße (MB)": 500 -> "Automatische Vergrößerung/Maximale Größe":  -> „Um 100 MB, unbegrenzt“
+„Seite auswählen“ -> „Optionen“ 
+				-> „Sortierung“ -> „Latin 1_General_CI_AS“
+				-> „Wiederherstellungsmodell“ -> „Einfach“
+-> "Kompatibilitätsgrad" -> die höchste Version auswählen, jetzt „SQL Server 2019 (150)“ ->  „Ok“
+"ENAIO-BASIS\ENAIO (SQL Server 15.0.2000 -sa)" -> "Sicherheit" -> "Anmelden": rechtsklicken -> "Neue Anmeldung…": 
+„Seite auswählen“ -> „Allgemein“ -> 
+"Anmeldename": "sys_enaio"
+"SQL Server-Authentifizierung": 
+"Kennwort": optimal
+„Kennwort bestätigen“: optimal
+„Kennwortrichtlinie erzwingen“ haken nicht einsetzen
+"Standarddatenbank": "enaio_prod"
+"Standardsprache": "English - us_english"
+ 
+"Seite auswählen" -> "Benutzerzuordnung" -> Haken vor "enaio_prod" einsetzen. 
+"Standardschema": manuell eintragen "sys_enaio".
+"Mitgliedschaft in Datenbankrolle für: enaio_prod" : Haken vor "db_owner" einsetzen. 
+ 
+ 
+7.	ODBC Datenquelle einrichten:
+Servermanager -> Tools -> ODBC-Datenquellen (64-Bit) -> "System-DSN" -> "Hinzufügen" -> "SQL Server Native Client 11.0" (wenn dies nicht existiert, dann wähle ich "SQL Server" aus. )
+"Neue Datenquelle für SQL Server erstellen" -> "Name": "enaio" -> "Beschreibung": Zugriff auf enaio_prod" -> "Server": "ENAIO-BASIS\ENAIO" (Hostname\ENAIO)
+„Neue Datenquelle für SQL Server erstellen“ -> 
+"Mit SQL-Server-Authentifizierung anhand der vom … ": -> Anmelde-ID: "sys_enaio"
+"Kennwort": "optimal"
+Haken vor "Die Standarddatenbank ändern auf: " -> "enaio_prod"
+Hacken vor "Sprache der SQL Server-Systemmeldungen ändern auf: " -> "English"
+ 
+###########################################################################
+Christian hat schon ein Script: 
+ODBC-Verbindung erstellen:
+$odbcname="enaio_prod"
+$sqlserver="SQL01\enaio"
+$sqldb="enaio_prod"
+$OdbcDriver = Get-OdbcDriver -Name *SQL* -Platform 64-bit
+ 
+Add-OdbcDsn -Name $odbcname -DriverName $OdbcDriver.Name -Platform 64-bit -DsnType System -SetPropertyValue @("Server=$sqlserver","Trusted_Connection=No", "Database=$sqldb")
+############################################################################
+ 
+8.	Microsoft Visual C++ 2015-2022 Redistributable installieren (als Administrator)
+Zuerst überprüfe ich, ob die beiden Exe-Dateien schon installiert wurden oder nicht: 
+ 
+Get-ItemProperty HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*, HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\* `
+| Where-Object { $_.DisplayName -like "*Visual C++*2015*" -or $_.DisplayName -like "*Visual C++*2017*" -or $_.DisplayName -like "*Visual C++*2019*" -or $_.DisplayName -like "*Visual C++*2022*" } `
+| Select-Object DisplayName, DisplayVersion
+ 
+Wenn schon, dann muss ich nicht mehr folgende machen: 
+ 
+Cd D:\Enaio\Installations_CD\enaio-11.10\Prerequisites\Microsoft Visual C++ 2015-2022 Redistributable
+Start-Process '.\Microsoft Visual C++ 2015-2022 Redistributable (x64).exe' -Verb RunAs
+Start-Process '.\Microsoft Visual C++ 2015-2022 Redistributable (x86).exe' -Verb RunAs
+ 
+ 
+Bis hier ist Phase 2 fertig. 
+ 
+ 
+Phase 3: Enaio-Applikationsserver installieren, ohne Kerndienste (Index und Search). 
+1.	Enaio-Server installieren: 
+Cd D:\Enaio\Installations_CD\enaio-11.10\Backend\Server\Disk1
+dir
+Start-Process .\setup.exe -Verb RunAs
+"Zielordner": "D:\Enaio\Applikation"
+Ordner für „Lizenzdateien“ : D:\Enaio\Lizenz\Produktiv
+„Datenbank“
+"DSN": "enaio"
+"Benutzer": sys_enaio
+"Passwort": optimal
+"Servergruppe": Heidelberg (== Kundenname)
+"Datenverzeichnis": "E:\Enaio\ENAIODATEN"
+Fenster für "Umwandlung in UNC" bei einem Enaio-Server: -> "Nein"
+->“weiter“ –> „Weiter“
+Fenster für "Dienst starten" -> "Nein"
+Jetzt öffne ich die Dienste per Powershell: 
+Start-Process services.msc
+"enaio server": rechtsklicken -> "Eigenschaften" -> "Allgemein" -> "Starttyp": "Manuell"
+"Anmelden" -> "Dieses Konto": -> "Durchsuchen": "svc_enaio": -> "Namen überprüfen"
+"Kennwort": "optimal"
+"Wiederherstellung": -> "Erster Fehler": "Dienst neu starten"
+"Zweiter Fehler": "Dienst neu starten"
+"Übernehmen" -> "Ok"
+ 
+"enaio server": rechtsklicken -> "Starten"
+ 
+Überprüfen, ob der enaio server richtig installiert wurde oder nicht. 
+Cd D:\Enaio\Applikation\server \ostemp\
+Dir
+Die Datei "startup.txt" mit Notepad++ öffnen
+Auf der Zeile sollte es sein: "Server start succeeded"
+Auf dem Pfad D:\Enaio\Applikation\server sollten folgende Ordner erstellt werden: 
+ etc
+d-----        04.06.2025     16:27                Leadtools
+d-----        04.06.2025     16:28                log
+d-----        04.06.2025     16:35                ostemp
+d-----        04.06.2025     16:27                Translations
+d-----        04.06.2025     16:27                win32
+ 
+ 
+Und auf dem Pfad E:\Enaio\ENAIODATEN\ sollten folgende Ordner erstellt werden: 
+CACHE
+d-----        04.06.2025     16:28                etc
+d-----        04.06.2025     16:35                NOTE
+d-----        04.06.2025     16:35                SLIDE
+d-----        04.06.2025     16:35                WORK
+ 
+2.	Enaio-Administrator installieren als Administrator
+Cd D:\Enaio\Installations_CD\enaio-11.10\Frontend\Administration-Ansi
+ 
+Die exe-Datei als Administrator ausführen: 
+Microsoft Access Database Engine 2016 Redistributable (x86).exe
+ 
+ Start-Process '.\Microsoft Access Database Engine 2016 Redistributable (x86).exe' -Verb RunAs
+ 
+ 
+Die msi-Datei installieren
+ 
+enaio_administration_ansi.msi
+Start-Process .\enaio_administration_ansi.msi
+ 
+"Zielordner": "D:\Enaio\Applikation\clients\admin"
+Hier muss ich zuerst die passenden Ordner erstellen.
+Ich habe die die Powershell-Datei von Claudia verbessert und nenne die als "mein_Version_Ordner_erstellen_D_& _E" : C:\Users\itba000150\Documents\Hauptaufgabe_enai_baisinstallation_anleitung\wichtige_tools_zur_Installation\Ordner für Enaio-Basisinstallation erstellen
+ 
+3.	Admin-User und Gruppen in Enaio-Administrator anlegen
+Passwörter von Benutzer muss ich per "Password-Generator" von Schrank "enaio DMS-Server" generieren lassen. 
+"DMS-Server": doppeltklicken -> "Passwortgenerator"
+ 
+Jetzt öffne ich auf VM "enaio administrator" und melde mich mit den folgenden Daten: 
+"root"
+"optimal"
+Hier bekomme ich eine Fehlermeldung: 
+ 
+ 
+Lösung: 
+Lizenzmodule für Namedlizenz importieren: 
+Enaio Entprise-manager öffnen -> "Console Root" -> "Enterprise Manager": rechtsklicken: -> "NEU" -> "Serverfamilie" -> "Server auswählen" -> IP-Adresse für meinen Server eingeben
+Jetzt gebe ich passwort "optimal" für "root" ein. 
+Jetzt öffne ich die Lizenz: "Console Root" -> "Entprise Manager" -> "enaio - System" -> "Verwaltung" -> "Lizenzeinstellungen" -> "Lizenzen": rechtsklicken auf "Lizenzen" -> "Neu" -> "'Standard'-Station hinzufügen"
+Auf der rechten Seite unter "Stationen": rechtsklicken auf "STANDARD" -> "Module hinzufügen" -> "alle auswählen" 
+Hier kann man auch schon die Lizenz für OCR hinzufügen: 
+Rechtsklicken auf  "192.127.121.11" -> "Module hinzufügen" -> "SMU" -> "OK"
+"ENAIO-BASIS" -> "Module hinzufügen" -> "SMU" -> "OK"
+Jetzt füge ich nochmal Module für den Server "192.127.121.11" hinzu, insgesamt brauche ich 17 Stücke:
+ 
+Diese 17 Stücke sind Basis-Lizenzen, wenn ich später noch Lizenzen für andere Dinge brauche, dann füge ich die hier hinzu, z.B.: die Lizenzen für enaio Capture. 
+Aufpassen: "ASS" ist nur für den Server mit "IP-Adresse".
+ 
+Jetzt füge ich die Lizenzen der Module für den Server mit Hostnamen: und zwar die gleichen ohne "ASS":
+ 
+ 
+Dann "strg + S" speicher (Oder "Datei" -> "Speichern") 
+ 
+Jetzt überprüfe ich, ob ich mich bei enaio administrator anmelden kann: 
+Enaio-Administrator öffnen -> "root" -> "optimal": jetzt sollte es klappen. 
+ 
+Jetzt mache ich weiterhin die Admin-User und Gruppen anlegen: 
+"Sicherheitssystem" ("Schlüßel"-Bild) -> „Benutzergruppen“ -> "Neu…" ->  "Name": "ADMIN" -> "Beschreibung": "enaio Administratoren".
+Reiter "Benutzerverwaltung" -> "neu" -> "ENAIO_SYSTEM" -> "Name": "ENAIO_SYSTEM" -> "Password": "ni4sh6mzeeZIfFUb" -> Hacken vor "Passwort läuft nie ab" einsetzen -> "Vollständiger Name": ENAIO_SYSTEM.
+Reiter "Gruppen": -> "ADMIN" auswählen -> "Beitreten".
+Reiter "Systemrollen" -> "Keine": Dann die letzten zwei Rollen hinzufügen: 
+"Server: Jobkontext wechseln"
+"Server: Ado-Jobs ausführen"
+-> "Übernehmen"
+Reiter "Benutzerverwaltung" -> "Neu" -> "Name": AUTOMAKTION -> "Password": WRD2QFW8ONyiOfuL -> Hacken vor "Passwort läuft nie ab" einsetzen -> "Vollständiger Name": AUTOMAKTION.
+Reiter "Gruppen": -> "ADMIN" auswählen -> "Beitreten".
+Reiter "Systemrollen" -> "Keine": Dann die folgenden 7 Rollen hinzufügen: 
+„Administrator: Starten“, 
+„Administrator: Automatische Aktionen starten“, 
+„Start: Starten“, 
+„Client: Clients“, 
+„Client: Persönlichen Papierkorb anzeigen“, 
+„Client: Systempapierkorb anzeigen“, 
+„Client: Objekte aus dem Papierkorb löschen“ .
+-> "Übernehmen"
+ 
+Jetzt hier für "ADM_ENAIO":  
+Reiter "Benutzerverwaltung" -> "Neu" -> "Name": ADM_ENAIO -> "Password": YTF4SHYaQPAkQhwN -> Hacken vor "Passwort läuft nie ab" einsetzen -> "Vollständiger Name": ADM_ENAIO.
+Reiter "Gruppen": -> "ADMIN" auswählen -> "Beitreten".
+Reiter "Systemrollen" -> "Alle"
+-> "Übernehmen"
+ 
+Jetzt melde ich mich in Enaio-Administrator als "root" ab und melde mich als "ADM_ENAIO" wieder an. 
+Jetzt sperre ich den Benutzerkonto "root":
+"Sicherheitssystem" -> "Benutzerverewaltung" -> "ROOT":
+Rechtsklicken auf "ROOT" -> "Sperren"
+ 
+4.	Enaio-Client installieren, dazu gehören die Installationen von den folgenden EXE-Dateien: 
+MicrosoftEdgeWebView2RuntimeInstallerX86.exe
+VB6.0-SP6-Runtime-KB290887-X86.exe
+VB6.0-UpdateOCX-KB896559-v1-DEU.exe
+Enaio_client_ansi.msi
+Enaio_capture_ansi.msi
+ 
+Jetzt installiere ich MicrosoftEdgeWebView2RuntimeInstallerX86.exe:
+Cd D:\Enaio\Installations_CD\enaio-11.10\Frontend\Client-Ansi
+Start-Process .\MicrosoftEdgeWebView2RuntimeInstallerX86.exe -Verb RunAs
+ 
+Jetzt installiere ich VB6.0-SP6-Runtime-KB290887-X86.exe
+Cd D:\Enaio\Installations_CD\enaio-11.10\Frontend\Client-Ansi
+Start-Process .\VB6.0-SP6-Runtime-KB290887-X86.exe -Verb RunAs
+ 
+Jetzt installiere ich VB6.0-UpdateOCX-KB896559-v1-DEU.exe:
+Cd D:\Enaio\Installations_CD\enaio-11.10\Frontend\Client-Ansi
+Start-Process .\VB6.0-UpdateOCX-KB896559-v1-DEU.exe -Verb RunAs
+ 
+Jetzt installiere ich 
+Enaio_client_ansi.msi
+ Start-Process .\enaio_client_ansi.msi
+ 
+"Aktuellen Zielordner ändern" -> D:\Enaio\Applikation\clients -> "Installieren" -> "Fertig stellen"
+ 
+Jetzt installiere ich enaio_capture_ansi.msi
+Cd D:\Enaio\Installations_CD\enaio-11.10\Frontend\Capture-Ansi
+Start-Process ./enaio_capture_ansi.msi
+"Installiere enaio caputre nach: " -> "Ändern…" -> "D:\Einao\Applikation\clients\capture" -> "Weiter" -> "Installieren" -> "Fertigstellen"
+ 
+Dann teste ich, ob ich mich mit "ADM_ENAIO" bei enaio-Client anmelden kann. 
+ 
+ 
+Phase 4: Enaio-Installation, Kerndienste (Index und Search)
+Jetzt installiere ich die Dienste von enaio, dazu gehören "AppConnector", "DocumentViewer", "Gateway", "enaio service-manager", "Volltextengine", "Finereader" 
+1.	AppConnector installieren: 
+Cd D:\Enaio\Installations_CD\enaio-11.10\Backend\AppConnector
+ Start-Process .\osappconnector_setup.exe -Verb RunAs
+ 
+"Installationsverzeichnis" -> D:\Enaio\Applikation\services\appconnector
+"ECM-Server konfigurieren" -> "IP-Adresse:4000" z.B. "195.127.121.112:4000"
+"ECM-Benutzer": ENAIO_SYSTEM
+"ECM-Passwort": ni4sh6mzeeZIfFUb
+"Möchten Sie den Dienst jetzt starten? " -> "Nein"
+Jetzt in Services-Manager gehen: 
+Services.msc
+"enaio appconnector": rechtsklicken -> "Eigenschaften" -> "Allgemein" -> "Starttyp: " -> "Manuell"
+"Anmelden" -> "Dieses Konto": "Durchsuchen…" -> "svc_enaio" -> "Kennwort" -> "optimal"
+"Wiederherstellung" -> "Erster Fehler: Dienst neu starten" -> "Zweiter Fehler: Dienst neu starten" -> "Übernehmen" -> "OK"
+"enaio appconnector": rechtsklicken -> "Starten"
+ 
+Jetzt überprüfe ich, ob Appconnector schon installiert wurde:
+"Enaio Enterprise Manager" :
+"Console Root" -> "Enterprise Manager" -> "enaio - System" -> "Servergruppen" -> "Applikationsserver" -> "Server 3 (Enaio-Basis/OSDRT)" -> "Einstellungen" -> "Servereigenschaften" -> "Kategorie" -> "Services"
+Bei "Appconnector" sollten drei "http"-Adressen eingetragen werden, aber jetzt gibt es nur zwei bei mir???? Vielleicht funktioniert "Detailsvorschau" wieder nicht, muss ich später nochmal testen. 
+ 
+2.	DocumentViewer installieren:
+cd D:\Enaio\Installations_CD\enaio-11.10\Backend\DocumentViewer
+Start-Process .\osdocumentviewer_setup.exe -Verb RunAs
+ 
+"Installationsverzeichnis": "D:\Enaio\Applikation\services\documentviewer"
+ 
+"Arbeitsverzeichnisse konfigurieren":
+E:\Enaio\ENAIODOCUMENTVIEWER\cache
+E:\Enaio\ENAIODOCUMENTVIEWER\db
+E:\Enaio\ENAIODOCUMENTVIEWER\jobs
+E:\Enaio\ENAIODOCUMENTVIEWER\temp
+ 
+ 
+Osdocumentviewer_hotfix.exe installieren als Adminsitrator
+Cd D:\Enaio\Installations_CD\enaio-11.10\Backend\DocumentViewer
+Start-Process .\osdocumentviewer_hotfix.exe -Verb RunAs
+ 
+Jetzt Service-Manager anpassen
+"enaio documentviewer" -> rechtsklicken -> "Eigenschaften " -> "Starttyp" -> "Manuell
+"Anmelden" -> "Dieses Konto" -> "Durchsuchen" -> "svc_enaio" -> "Nameüberprüfen" -> "Kennwort":optimal
+"Wiederherstellung" -> "Erster Fehler: Dienst neu starten"
+"Zweiter Fehler: Dienster neu starten"
+ 
+Jetzt überprüfe ich, ob die "http"-Adressen schon bei "Enaio-Enterprise-Manager" beantragt wurden. 
+Es sollte vier "http-"Adressen geben, aber jetzt habe ich nur zwei. 
+ 
+Jetzt installiere ich weiter die exe-Datei: "gs10031w64.exe" als Administrator,
+Das ist das Ghost-Script:  
+Cd D:\Enaio\Applikation\services\documentviewer\renditionplus\bin\install\ghostscript\10.03
+Start-Process .\gs10031w64.exe -Verb RunAs
+ 
+Jetzt konfiguriere ich zwei config-Dateien: 
+cd D:\Enaio\Applikation\services\documentviewer\webapps\osrenditioncache\WEB-INF\classes\config
+ 
+Die zwei Dateien sind: 
+Config.properties
+Und 
+Route.properties
+ 
+Jetzt öffne ich mit "Notepad++" die beiden Dateien: 
+n .\config.properties, .\route.properties
+Bei config.properties auf der Zeile 17: 
+* statt "tif"
+Und zwar: 
+rendition.ocrSelectionPredicate=image/*,application/pdf
+ 
+Bei config.properties auf der Zeile 19: 
+cache.maxSize=15GB
+Laufwerk E habe ich 30 GiB, der Cache braucht weniger als 2 / 3, also < 20 GiB, hier nehme ich 15.  
+ 
+Bei route.properties:
+Auf der Zeile 12 muss "finereader" sein, und zwar: 
+ocr-engine=finereader
+ 
+Jetzt konfiguriere ich gleichzeitig noch andere zwei Dateien: 
+Cd D:\Enaio\Applikation\services\documentviewer\webapps\renditionplus\WEB-INF\classes\config
+n .\config.properties, .\global.properties
+ 
+Bei Config.properties: 
+Nichts. 
+ 
+Bei global.properties:
+Auf der Zeile 1
+rendition.skip_msOffice=true
+Auf der Zeile 3: 
+rendition.skip_aspose=false
+ 
+Weil ich diese 4 Dateien konfiguriert habe, kann ich die Seiten von 134 bis 137 übersprungen. 
+Jetzt starte ich "enaio documentviewer" neu. 
+ 
+3.	Gateway installieren: 
+Cd D:\Enaio\Installations_CD\enaio-11.10\Backend\Gateway
+Start-Process .\osgateway_setup.exe -Verb RunAs
+"Installationsverzeichnis" -> "D:\Enaio\Applikation\services\gateway"
+ECM-Server: 195.127.121.112:4000
+ECM-Benutzer: ENAIO_SYSTEM
+ECM-Passwort: ni4sh6mzeeZIfFUb
+ 
+Jetzt konfiguriere ich die yml-Datei: 
+Cd D:\Enaio\Applikation\services\gateway\apps\os_gateway\config
+ n .\application-prod.yml
+Am Ende der Datei füge ich eine Zeile von Code hinzu: 
+ enableEurekaRoutesWhitelist: false
+Dann speichere ich die Datei. 
+ 
+Jetzt öffne ich den Services-Manager:
+"enaio gateway" -> rechtskicken -> "Eigenschaften" -> "Allgemein" ->"Starttyp" -> "Manuell"
+"Anmelden" -> "Dieses Konto" -> "svc_enaio" -> "Kennwort" -> optimal
+"Wiederherstellung" -> "Erster Fehler:" -> "Dienst neu starten"
+"Zweiter Fehler" -> "Dienst neu starten"
+Jetzt überprüfe ich, ob die "http"-Adressen bei "Enaio Enterprise Manager" beantragt wurden. 
+Jetzt finde ich, dass nicht nur die "http"-Adresse von "Gateway" beantragt wurde, sondern auch die fehlenden "http"-Adressen von "DocumentViewer", "Appconnector" und "Rendition-Cache" schon vollständig beantragt wurden. 
+ 
+4.	"Enaio service-manager" installieren: 
+Cd D:\Enaio\Installations_CD\enaio-11.10\Backend\Service-Manager
+Start-Process .\os_service-manager_setup.exe -Verb RunAs
+"Installationsverzeichnis" -> "D:\Enaio\Applikation\services\service-manager"
+"Komponentenauswahl" -> 15 Komponente:
+"admin, discovery"
+"applet"
+"archive"
+"data-transfer"
+"dms"
+"extraction"
+"Full Text-Services"
+"consistency-check"
+"index"
+"migration"
+"search"
+"license"
+"mailstorage"
+"ocr"
+"osweb"
+Dann füge ich die ECM-Server, Benutzer und Passwort hinzu: 
+ECM-Server: 195.127.121.112:4000
+ECM-Benutzer: ENAIO_SYSTEM
+ECM-Passwort: ni4sh6mzeeZIfFUb
+ 
+Jetzt überprüfe ich, ob es einen Patch für enaio service-manager gibt: 
+Cd D:\Enaio\Installations_CD\enaio-11.10\Backend\Service-Manager-Update
+Wenn es die exe-Datei gibt, dann muss ich die ausführen: 
+Enaio_services_versionfix.exe
+Start-Process .\enaio_services_versionfix.exe -Verb RunAs
+ 
+Jetzt konfiguriere ich die yml-Datei: 
+Cd D:\Enaio\Applikation\services\service-manager\config
+n .\servicewatcher-sw.yml
+Ich suche nach dem Namen "oswebservice":
+Strg + f -> "Suchen nach:" -> "oswebservice" -> "instances" auf "0" einsetzen
+   -> "archiveservice" -> "instances" auf "0" einsetzen
+   -> "migration" -> "instances" auf "0" einsetzen
+   -> "datatransfer" -> -> "instances" auf "0" einsetzen
+ 
+Jetzt öffne ich serice-manager: 
+Services.msc
+"enaio service-manager" -> rechtsklicken -> "Eigenschaften":
+"Allgemein" -> "Starttyp" -> "Manuell"
+"Anmelden" -> "Dieses konto": "svc_enaio" -> "Kennwort": optimal
+"Wiederherstellung" -> "Erster Fehler: Dienst neu starten"
+     -> "Zweiter Fehler: Dienst neu starten"
+Jetzt überprüfe ich, ob "enaio service-manager" bei "enaio enterprise manager" schon beantragt wurde oder nicht. 
+ 
+5.	"Volltextengine" installieren: 
+Cd D:\Enaio\Installations_CD\enaio-11.10\Backend\Elasticsearch\
+Start-Process .\elasticsearch_setup.exe -Verb RunAs
+"Installationsverzeichnis" -> "D:\Enaio\Applikation\services\elasticsearch7"
+"Indexverzeichnis" -> "E:\Enaio\ENAIOFTS"
+"Cluster-Konfigurationsparameter" -> "Verbindungsparameter der Master-Knoten (kommasep.)" -> "IP-Adresse:9300" z.B. "195.127.121.112:9300"
+ 
+Jetzt öffne ich service-manager
+services.msc
+"elasticsearch 7.17.8 " -> rechtsklicken -> "Eigenschaften":
+        -> "Allgemein" -> "Starttyp" -> "Manuell"
+        -> "Anmelden" -> "Dieses Konto" -> "ENAIO-BASIS\svc_enaio" oder ".\svc_enaio" -> "Kennwort": optimal
+ 
+        -> "Erster Fehler: Dienst neu starten"
+        -> "Zweiter Fehler: Dienst neu starten"
+Dann starte ich "Elasticsearch 7.17.8". 
+ 
+Jetzt führe ich eine Bat-Datei für "Elasticsearch" aus: 
+Cd D:\Enaio\Applikation\services\elasticsearch7\bin
+Die Datei heißt "elasticsearch-set-initial-passwords.bat":
+ .\elasticsearch-set-initial-passwords.bat
+Wenn ich hier einen Fehler wie folgenden bekomme: 
+ 
+ 
+Dann:
+Cd D:\Enaio\Applikation\services\elasticsearch7\config
+Dir
+N elasticsearch.yml:
+Auf der Zeile 4 trage ich die Adresse "0.0.0.0" oder "127.0.0.1" ein, 
+Hier habe ich "0.0.0.0" eingetragen.
+ 
+Dann: 
+Cd D:\Enaio\Applikation\services\elasticsearch7\bin
+ .\elasticsearch-setup-passwords.bat auto -b -u http://0.0.0.0:8041
+Dann bekomme ich in Console die folgenden Passworte von Elasticsearch: 
+########################################################
+Changed password for user apm_system
+PASSWORD apm_system = kXTHBHwrZp6Mk6k8AyHF
+ 
+Changed password for user kibana_system
+PASSWORD kibana_system = qTRqQ3XOaQyVR1Vp6RFY
+ 
+Changed password for user kibana
+PASSWORD kibana = qTRqQ3XOaQyVR1Vp6RFY
+ 
+Changed password for user logstash_system
+PASSWORD logstash_system = wc8GF0lGvlPuGO8VnPdO
+ 
+Changed password for user beats_system
+PASSWORD beats_system = eyN4TQB4rVmVmD6QTu6K
+ 
+Changed password for user remote_monitoring_user
+PASSWORD remote_monitoring_user = DcsiLcFYLZNKxPJone80
+ 
+Changed password for user elastic
+PASSWORD elastic = BebLex5v4T5jAOBZT5xm
+#############################################################################
+Dann trage ich das Password von user elastic in Datei "application-es.yml" ein (D:\Enaio\Applikation\services\service-manager\config)
+ 
+Überprüfung: 
+Jetzt öffne ich die Datei mit Notepad++:
+Cd D:\Enaio\Applikation\services\elasticsearch7\config
+n .\built-in.usr
+Es sollte nichts darin geben.
+Normalerweise sollten die obigen Passworten hier geschrieben werden.
+##################################################################
+Jetzt geht es weiter: 
+Cd D:\Enaio\Applikation\services\service-manager\config
+n .\application-es.yml
+Auf der Zeile 7 trage ich das Passwort von Elasticsearch ein. 
+ 
+Jetzt öffne ich Edge und die Adresse eingeben: http://localhost:7273
+Es sollte die Webseite für enaio-Applikationen öffnen. 
+Hier sind "Index", "Search" und "CCService" down. 
+Jetzt ignoriere ich die und mache weiter.
+Wenn ich alle Dienste beende und nochmal starte, dann dauert es einbisschen und laufen alle. 
+ 
+ 
+6.	"Finereader" installieren
+cd D:\Enaio\Installations_CD\enaio-11.10\Backend\Finereader\
+Start-Process .\setup.exe -Verb RunAs
+ 
+"Setup-Typ" -> "Bitte wählen Sie Ihre Lizenzierungsart aus." -> "Lizenzierung Software Key" -> "Produktivlizenz"
+ 
+Die Lizenzdatei heißt: "SWEO-1221-0006-8338-0462-8480.ABBYY.locallicense" und steht im Ordner: "C:\Users\itba000150\Documents\Hauptaufgabe_enai_baisinstallation_anleitung\wichtige_tools_zur_Installation\Lizenzdatei für FineReader" von mir
+ 
+# Zuerst kopiere ich die Lizenzdatei in VM: 
+# cd C:\Users\adm_enaio\Downloads
+
+# Jetzt kopiere ich die Lizenz-Datei in die folgenden Ordner:
+# Die Lizenzdatei muss in folgende Ordner kopiert werden:
+# D:\Enaio\Applikation\services\FineReader
+# D:\Enaio\Applikation\services\FineReader\Bin64
+# Jetzt füre ich die folgenden Befehle aus: 
+copy-item .\SWEO-1221-0006-8338-0462-8480.ABBYY.locallicense -Destination D:\Enaio\Applikation\services\FineReader
+
+copy-item .\SWEO-1221-0006-8338-0462-8480.ABBYY.locallicense -Destination D:\Enaio\Applikation\services\FineReader\Bin64\
+
+# Jetzt überprüfe ich, ob die Lizenzdatei schon in die Ordner da ist:
+cd D:\Enaio\Applikation\services\FineReader
+# sw + tab
+cd D:\Enaio\Applikation\services\FineReader\Bin64\
+# sw + tab
+
+Jetzt öffne ich die Datei mit Notepad++: config.properties im Ordner: D:\Enaio\Applikation\services\documentviewer\webapps\osrenditioncache\WEB-INF\classes\config\
+n .\config.properties
+Auf der Zeile 44
+Admin.user=adm_enaio
+ 
+Jetzt öffne ich die Service manager und starte die Dienst "enaio dokumentviewer" neu.
+Services. Msc
+Dann öffne ich Edge und gebe die Adresse ein: http://localhost/osdocumentviewer
+ 
+ 
+Auf "Administration" klicken: 
+Reiter "enaio renditioncache" -> "OCR-Engine" -> "FineReader"
+Reiter "enaio renditionplus" -> "MS Office verwenden" -> Hacken entfernen
+"Speichern" klicken. 
+Jetzt starte ich "documentviewer" neu. 
+ 
+ 
+ 
+ 
+Phase 5: Automatische Aktionen konfigurieren
+1.	Jetzt öffne ich die Aufgabenplanung: 
+taskschd.msc
+"Aufgabenplanungsbibliothek": rechtsklicken -> "Neuer Ordner …" -> "Name" -> "ENAIO"
+"Aufgabenplanung (Lokal)" -> "Aufgabenplanungsbibliothek" -> "ENAIO": rechtsklicken -> "Aufgabe erstellen":
+"Allgemein" -> "Name" -> "enaio_SERVICES_start"
+-> "Sicherheitsoptionen" -> "Benutzer oder Gruppe ändern …" klicken -> 
+"svc_enaio" -> "Namen überprüfen" 
+"Unabhängig von der Benutzeranmeldung ausführen" auswählen
+"Mit höchsten Privilegien ausführen" auswählen
+"´Trigger" -> "Neu …" -> "Aufgabe starten" -> "Beim Start"
+       -> "Verzöger für: " -> "30 Sekunden"
+"Aktionen" -> "Neu… " -> "Programm/Skript:" -> "Durchsuchen…" -> 
+Die Datei "start_Services_enaio.cmd" aus dem Ordner "D:\Enaio\AutomatischeAktionen" auswählen
+"Einstellungen" -> "Aufgabe beenden, falls Ausführung länger als: " -> "4 Stunden"
+-> "OK"
+Dann gebe ich das Passwort für "svc_enaio" ein: optimal
+ 
+2.	ENAIO als Symbolleiste hinzufügen
+Ich erstelle eine Verknüpfung von der Datei "D:\Enaio\Applikation\server\axsvcmtr.exe" in das Startmenü "C:\ProgramData\Microsoft\Windows\StartMenu\Programs\ENAIO"
+ 
+Hier ist ein Skript dafür, ob es funktioniert, habe ich noch nicht getestet:
+#################################################################
+# Zielpfad zur exe-Datei
+$exePath = "D:\Enaio\Applikation\server\axsvcmtr.exe"
+ 
+# Zielordner im Startmenü
+$startMenuFolder = "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\ENAIO"
+ 
+# Verknüpfungspfad
+$linkPath = Join-Path $startMenuFolder "ENAIO Server.lnk"
+ 
+# Ordner ENAIO im Startmenü erstellen, falls er nicht existiert
+if (-not (Test-Path $startMenuFolder)) {
+    New-Item -Path $startMenuFolder -ItemType Directory -Force
+}
+ 
+# COM-Objekt für die Verknüpfung
+$WshShell = New-Object -ComObject WScript.Shell
+$Shortcut = $WshShell.CreateShortcut($linkPath)
+ 
+# Verknüpfung konfigurieren
+$Shortcut.TargetPath = $exePath
+$Shortcut.WorkingDirectory = Split-Path $exePath
+$Shortcut.WindowStyle = 1
+$Shortcut.Description = "ENAIO Server starten"
+$Shortcut.Save()
+ 
+Write-Host "Verknüpfung wurde erstellt: $linkPath"
+#########################################################################
+ 
+Die Datei "axsvcmtr.exe" im Ordner "D:\Enaio\Applikation\server": rechtsklicken -> "Verknüpfung erstellen" 
+Die Verknüpfung in Desktop ziehen: -> rechtsklicken -> "Umbenennen" -> "enaio server monitor"
+Jetzt öffne ich den Ordner "C:\"-> "Ansicht" -> "Ausgeblendete Elemente" einen Hacken einsetzen -> 
+Die Verknüpfung verschiebe ich in den Ordner "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\enaio" -> "Fortsetzen"
+ 
+"enaio server monitor" -> rechtsklicken -> "Eingenschaften" -> "Verknüpfung" -> "Erweitert…" klicken -> "Als Administrator ausführen" -> "OK"
+ 
+Rechtsklicken auf "Taskleiste" (ganz unter schwarzen Streifen) -> "Symbolleisten" -> "Neue Symbolleiste…" -> den Ordner "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\ENAIO" auswählen
+Dann sollte ein eine Verknüpfung auf dem "Taskleister" stehen. 
+ 
+3.	"Enaio Enterprisemanager" einrichten
+Wenn "enaio Enterprisemanager" nicht gestartet wird, dann trage ich die IP-Adresse des Servers in die Datei "asinit.cfg" im Ordner "D:\Enaio\Applikation\clients\admin" ein. 
+But hier kann ich auch den "enaio Enterprise Manager " starten, ohne die IP-Adresse in die Datei einzutragen. 
+"Console Root" -> "Enterprise Manager" -> "enaio - System " -> "Servergruppen" -> "Heidelberg" -> "Applikationsserver" -> "Server 3 (ENAIO-BASIS/OSDRT)" -> "Einstellungen" -> "Servereigenschaften" -> "Kategorie:  " -> "Allgemein" -> "Sicherheit" -> "Änderungen am Sicherheitssytem protokollieren" -> "Ja"
+-> "beim Verbinden aktualisieren" Hacken einsetzen. 
+
+"Datei" -> "Snap-In hinzufügen/entfernen… " (oder strg + m):
+Jetzt füge ich die folgenden Sachen auf der linken Seite in die rechte Seite hinzu:
+"Aufgabenplanung" -> "OK"
+"Computerverwaltung" -> "Fertig stellen"
+"Dienste" -> "Fertig stellen"
+-> "OK"
+ 
+"Servereingenschaften" von "Enaio Enterprisemanager" -> "Kategorie" -> "Allgemein":
+Folgende Parameter ausfüllen: 
+"E-Mail-Server: " -> "mx.kvnbw.net"
+"E-Mail-Absender" -> "enaio_inhouse@komm.one"
+"E-Mail-Adresse des Helpdesks" -> "support.dms@komm.one"
+ 
+"Kategorie" -> "Allgemein" -> "Login" -> "Auto-Login" -> "Aktiv"
+     -> "Login" -> "Benutzernamen für LoginPipe-Ausnahmen" -> "*"
+     -> "Login" -> "IP-Adressen für LoginPipe-Ausnahmen" -> IP-Adresse von allen enaio-Servern, hier habe ich nur einen also "195.127.121.112"
+Wenn mehrere Enaio-Server gibt, dann trenne ich mit ";" voneinander. 
+     -> "Login" -> "Alternative LoginPipe" -> "IU"
+     -> "Login " -> "Reihenfolge der Anmeldung" (egal)
+      -> "Sicherheit" -> "Maximale Freigabedauer" -> "90"
+      -> "Sicherheit" -> "Gemeinsames Bearbeiten" -> "Ja"
+"Kategorie" -> "Daten" -> "Archivierung" -> "Backups anlegen" -> "Nicht aktiv"
+         -> "Archivierung" -> "Maximale Fehleranzahl beim Archivieren" -> "10"
+ 
+"Console Root" -> "Enterprise Manager" -> "enaio - System" -> "Servergruppen" -> "Heidelberg" -> "Applikationsserver" -> "Server 3 (ENAIO-BASIS/OSDRT)" -> "Einstellungen" -> "Registry-Einträge" -> "Aktualisieren" klicken -> "Schema" -> "ScriptEngine" -> "DoNotCache" -> "1" 
+ 
+"Console Root" -> "Enterprise Manager" -> "enaio - System" -> "Servergruppen" -> "Heidelberg" -> "Applikationsserver" -> "Server 3 (ENAIO-BASIS/OSDRT)" -> "Einstellungen" -> "Periodische Jobs" -> "Aktualisieren" -> "CheckExpires" -> "zu einem bestimmten Zeitpunkt" -> "am jeden Tag" -> "um 06:00"
+  -> "CheckDiskSpaceRoot" -> Default lassen
+  -> "CheckDiskSpaceLog" -> Default lassen
+  -> "SessionDropNotActive" -> "Parameter: " -> "AgeHours" -> "Ändern" -> "Wert" -> "16"
+4.	"Gesamtsystem" einrichten:
+Ich öffne "enaio adminstrator" und melde mich als "ADM_ENAIO" an -> "Gesamtsystem" -> "Start" -> "Anmeldung" -> "Automatisch"
+"Dokumente" -> "W-Dokumente ohne Vorlagenrestriktion" Hacken einsetzen.
+"Notizen" -> "Ablage der Textnotizen" -> "Datenbank"
+"Zusätze" (hier tritt ein Fenster aus, mit "Ja" bestätigen) -> "Extension-DLLs einrichten" -> "…" klicken ->  die folgenden DLL-Dateien nach unter hinzufügen: 
+Im Ordner "D:\Enaio\Applikation\clients\admin":
+Axaccl.dll
+Axaccleantrash.dll
+Axacdbst.dll
+Axaccach.dll
+ 
+ 
+5.	Automatische Aktionen durchführen: 
+Ich öffne "enaio Administrator" und melde mich als "ADM_ENAIO" an.
+"Automatische Aktionen":
+ 
+Von links nach rechts klicke ich den 5. Knopf
+"Aktionen hinzufügen" -> "Aktionen" -> "Aktualisierung der Datenbankstatistik" -> "Hinzufügen"
+-> "Aktionen" -> "Bereinigung der Konfigurations- und Protokolldateien" ->  "Server-Logdateien" -> "Protokollpfad" -> den Pfad eingeben "D:\Enaio\Protokolle\serverlogs"
+-> "Konfigurationsdateien" -> "Alle" Hacken entfernen -> die anderen Hacken einsetzen
+-> "Server -Logdateien" -> "Alle" Hacken entfernen -> die anderen Hacken einsetzen
+"Aktionen hizufügen" -> "Aktionen" -> "Cache-Bereinigung" -> "Hinzufügen" -> "OK"
+       -> "Aktionen" -> "Papierkorb entleeren" -> "Hinzufügen" -> "Namensvergabe" -> "Konfigurationsname" -> "Papierkorb leeren - 180 Tage" -> "1. Karenzzeit prüfen" Hacken einsetzen -> "Karenzzeit (in Tage)" -> "180"
+"Automatische Aktionen" -> "Generieren des AxStart - Kommandos" -> "AxStart - Strg." klicken: 
+Jetzt wird eine Adresse erzeugt -> ich kopiere die Adresse 
+Ich erstelle jetzt eine leeere txt-datei (AxStart_Adressen.txt) in Notepad++: 
+Dann kopiere ich die Adresse in die Datei. 
+Ich erstelle die Adressen für die andere 3 Aktionen, insgesamt muss ich 4 Adressen haben: 
+ 
+Jetzt kann ich "Automatische Aktionen" mit "OK" schließen. 
+ 
+6.	Wartungsaufgaben in "Aufgabenplanung" einrichten ("8 Arbeiten in der Aufgabenplanung"): 
+Jetzt öffne ich "Aufgabenplanung"
+taskschd.msc
+"Aufgabenplanung (Lokal)" -> "Aufgabenplanungsbibliothek" -> "ENAIO": rechtsklicken -> "Aufgabe erstellen …":
+"Allgemein" -> "Name" -> "ENAIO_WARTUNGSAUFGABEN"
+-> "Beschreibung" -> "Aktualisieren der DB-Statistik | Papierkorb leeren | Cachebereinigung | Bereinigung der Konfigurations- und Protokolldateien"
+-> "Sicherheitsoptionen" -> "Beim Ausführen der Aufgaben folgendes Benutzerkonto verwenden: " -> "Benutzer oder Gruppe ändern.." klicken -> "svc_enaio" -> "Namen überprüfen" 
+"Unabhängig von der Benutzeranmeldung ausführen" Hacken einsetzen.
+"Mit höchsten Privilegien ausführen" Hacken einsetzen. 
+"Trigger" -> "Neu…" -> "Einstellungen" -> "Täglich" auswählen -> "Uhrzeit" -> "03:30:00" -> "OK"
+"Aktionen" -> "Neu…" -> jetzt kopiere ich die AxStart-Adressen eins für eins in "Programm/Skript", und es sieht so aus: 
+ 
+ 
+"Einstellungen" -> "Aufgabe beenden, falls Ausführung länger als " -> "12 Stunden" -> "OK":
+Jetzt tritt ein Fenster auf, ich gebe das Passort für "svc_enaio" ein: optimal
+ 
+Phase 6: Sonstige Arbeiten
+1.	"enaio Autostart" installieren
+ cd D:\Enaio\Applikation\clients\admin
+Start-Process .\axauto.exe -Verb RunAs
+"Benutzername: " -> "AUTOMAKTION"
+"Passwort" -> "WRD2QFW8ONyiOfuL"
+-> "OK" ->“Beenden“
+2.	"enaio Report Konfiguration" für "Protokoll" installieren
+cd D:\Enaio\Applikation\clients\admin
+Start-Process .\axprotocolcfg.exe -Verb RunAs
+"Protokollpfad" -> "D:\Enaio\Protokolle\adminlogs" -> "Flow-Protokoll" Hacken einsetzen ->   "0: "Nur Fehlerprotokoll"
+-> "Fehler-Protokoll" Hacken einsetzen
+-> "Job-Call-Protokoll" Hacken entfernen
+ 
+3.	"enaio Report Konfiguration" für "Capture" installieren: 
+ cd D:\Enaio\Applikation\clients\capture
+Start-Process .\axprotocolcfg.exe -Verb RunAs
+"Protokollpfad" -> "D:\Enaio\Protokolle\capturelogs" -> "Flow-Protokoll" Hacken einsetzen -> "0: "Nur Fehlerprotokoll"
+-> "Fehler-Protokoll" Hacken einsetzen
+-> "Job-Call-Protokoll" Hacken entfernen
+4.	"enaio Report Konfiguration" für "clientslog" installieren: 
+cd D:\Enaio\Applikation\clients\client32
+ Start-Process .\axprotocolcfg.exe -Verb RunAs
+"Protokollpfad" -> "D:\Enaio\Protokolle\clientlogs" -> "Flow-Protokoll" Hacken einsetzen ->     "0: "Nur Fehlerprotokoll"
+-> "Fehler-Protokoll" Hacken einsetzen
+-> "Job-Call-Protokoll" Hacken entfernen
+ 
+5.	Für Serverprotokoll cfg-Datei anpassen: 
+cd D:\Enaio\Applikation\server\
+ n .\oxrpt.cfg
+Auf der letzten Zeile für "LogPath"
+Ich passe den Pfad an: "D:\Enaio\Protokolle\serverlogs"
+ 
+6.	"as.cfg" konfigurieren
+cd E:\Enaio\ENAIODATEN\etc\
+n .\as.cfg
+"System" -> am Ende füge ich die folgenden Zeilen hinzu: 
+STORELASTLOGINUSER=1
+SECSYSTEMTRANSACTION=1
+CHECKDAYSSEQENCE=7,30
+CanBreakSQLStatements=1
+DBPINGPERIOD=300
+PINGPERIOD=300
+ 
+Jetzt starte ich die Dienste "enaio server" neu. 
+ 
+7.	"logfiles.ps1" im Ordner "D:\Enaio\AutomatischeAktionen" anlegen
+cd D:\Enaio\AutomatischeAktionen\
+"logfiles.ps1" erstellen
+Jetzt erstelle ich einen Ordner "Hilfsfunktionen"
+mkdir Hilfsfunktionen
+cd .\Hilfsfunktionen\
+Dann erstelle ich noch eine Powershell-Datei "Remove-Logfiles.ps1"
+Den Inhalt habe ich schon gespeichert: 
+ C:\Users\itba000150\Documents\Hauptaufgabe_enai_baisinstallation_anleitung\wichtige_tools_zur_Installation\logfiles_und_remove_logfiles>
+ 
+8.	Logfiles.ps1 und Remove-logfiles.ps1 in Aufgabenplanung hinzufügen:
+Jetzt öffne ich die Aufgabenplanung: 
+Taskschd.msc
+"Aufgabenplanungsbibliothek" -> "ENAIO" -> "ENAIO_WARTUNGSAUFGABEN" -> rechtsklicken -> "Eigenschaften":
+"Allgemein" -> "Beschreibung " -> "| LogFile Bereinigung Clients + Dienste" hinzufügen.
+"Aktionen" -> "Neu…" -> "Durchsuchen…" -> "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" auswählen
+"Argumente hinzufügen (optional)" -> "-noninteractive -file "D:\enaio\AutomatischeAktionen\logfiles.ps1" -ExecutionPolicy Bypass" eingeben 
+"Starten in (optional)" -> "D:\Enaio\AutomatischeAktionen" eingeben
+-> "OK":
+Hier tritt ein Fenster auf, ich gebe das Passwort für "svc_enaio" ein: optimal. 
+"ENAIO_WARTUNGSAUFGABEN": rechtsklicken -> "Ausführen":
+Es sollte unter "Ergebnis der letzten Ausführung" "Der Vorgang wurde erfolgreich beendet."
+ 
+ 
+Phase 7: Testen:
+1.	Zuerst überprüfe ich, ob der enaio Server funktioniert, indem ich die Datei "startup.txt" mit Notepad++ schaue, ob es am Ende der Datei "Server start succeeded" gibt:
+cd D:\Enaio\Applikation\server\ostemp\
+n .\startup.txt
+"Strg + Ende" drücken. 
+Es gibt:  
+ 
+ 
+ 
+ 
+2.	Jetzt starte ich "enaio editor": 
+Wenn es hier eine Fehlermeldung gibt: 
+ 
+Dann muss ich auf die genannte Datei aufpassen, ob die Datei sauber ist, 
+d.h. jetzt sieht meine Datei so aus: 
+ 
+Auf der Zeile 1 stehe ein "d" vor "[ARCHIV]"
+Ich muss "d" löschen.
+Auf der Zeile 4 steht ein Semikolon vor "SERVER":
+Wenn ich einen Server für "enaio editor" wählen will, dann lösche ich ";".
+Wenn ich keinen Server manuell wählen will, dann lasse ich es. 
+Auf der Zeile 2 und auf der Zeile 6 kann "localhost" bei Default entstehen;
+Wenn es anderen Fehler gibt, dann kann man IP-Adresse von lokalem Server statt "localhost" eingeben. 
+Jetzt läuft der enaio editor: 
+"Datei" -> "Objektdefintionsdatei öffnen… " -> die Datei "x_testschrank.xml" im Ordner "Downloads" (ich speichere Dateien immer in "Download") auswählen
+(Originaler Ordner von der Testdatei ist: 
+P:\DVV-Datenaustausch\DMS\LÖSUNGEN\DoD\Testschrank)
+ 
+"X | Testschrank" in die "Aktuelle Objektdefinition" ziehen;
+"C:\Users\adm_enaio\Download\x_testschrank.xml" -> rechtsklicken -> "Objektdefinition schließen" -> Strg + s (Speichern) -> zwei Fenster von "enaio editor" mit "Ja" bestätigen. 
+Eine Spalte unterlinks sollte "Bereit" anzeigen und "Ausgabe" sollte "Tabellenanpassung abgeschlossen" anzeigen. 
+ 
+Jetzt öffne ich "enaio Administrator"
+"Sicherheitssystem" (Bild von zwei Schlüsseln) ->  "Einstellungen" (auf der linken Seite) -> "Objekttyp" -> "X | Testschrank" doppelklicken, sodass der nach rechts gezogen wird
+-> "X | Testschrank@Dokument" doppelklicken, sodass der nach rechts gezogen wird
+"Objekttyp" -> die zwei Typen auswählen -> "Recht" -> "Alle" -> "Zuweisen" -> "Speichern" -> "OK"
+ 
+Jetzt umbenenne ich die Datei "ems-prod.yml" im Ordner "D:\Enaio\Applikation\services\service-manager\config" in "ems-prod_20250612.bak". 
+Dann kopiere ich eine Datei "ems_prod.yml" aus dem Ordner "P:\DVV-Datenaustausch\DMS\LÖSUNGEN\DoD\Testschrank" (oder in meinem Ordner "C:\Users\itba000150\Documents\Hauptaufgabe_enai_baisinstallation_anleitung\wichtige_tools_zur_Installation\ems_prod_yml")und lege in den Ordner "D:\Enaio\Applikation\services\service-manager\config" ab. 
+ 
+Jetzt starte ich die Applikation "EMS" auf der Webseite "http://localhost:7273" neu. 
+ 
+Jetzt öffne ich "enaio client":
+"Objektsuche" -> "X | Testschrank" -> rechtsklicken -> "Neu":
+ -> "Projektname" -> "Basisinstallation"
+-> "Projektleitung" -> "Yi Miao"
+-> "Projektbeginn" -> "12.06.2025"
+-> "Status" -> "Laufend" 
+-> "Speichern"
+ 
+Jetzt sollte "Detailsvorschau" die Infos anzeigen.
+"Detailsvorschau" funktioniert nicht, 
+d.h. es gibt Fehler bei AppConnector. 
+Ich habe die Enaio-Dienst "AppConnector" neugestartet, dann funktioniert es.
+ 
+"Inhaltsvorschau" und "Volltextsuchen" funktionieren. 
+ 
+Jetzt überprüfe ich, ob ich mich mit dem Konto von "Elastic" anmelden kann. 
+Der Konto und Passwort befinden sich in der Datei "application-es.yml" aus dem Ordner "
+D:\Enaio\Applikation\services\service-manager\config"
+"Benutzername" -> "elastic"
+"Kennwort" -> "BebLex5v4T5jAOBZT5xm"
+Dann bekomme ich eine Zeile:
+ 
+ 
+ 
+Jetzt teste ich, ob webclient funktioniert: 
+http://localhost/osweb
+ 
+Hier sind die Screenshots für Testen: 
+Detailvorschau.
+ 
+ 
+Inhaltsvorschau: 
+ 
+ 
+ 
+Volltextsuche: Urlaub
+ 
+ 
+Applications: 
+ 
+ 
+ 
+Elastics:
+ 
+ 
+Startup.txt: (cd D:\Enaio\Applikation\server\ostemp)
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+1.	Von Seiten 134 - 137 habe ich neue Anleitung protokolliert, weil die Anleitung nur zu alter Version von Enaio passt, ab enaio 10.10 muss man nach der neuen Anleitung installieren. 
+Diese Konfiguration ist für Dokumentviewer.
+ 
+Hier ist die neue Anleitung:
+ 
+Die Konfigurationsdateien befinden sich hier: 
+"D:\Enaio\Applikation\services\documentviewer\webapps\osrenditioncache\WEB-INF\classes\config"
+Wir brauchen zuerst zwei Dateien von "osrenditioncache": 
+ 
+ 
+Beiden Dateien öffnen: 
+ 
+ 
+Dann noch zwei Configsdateien von  "renditionplus" öffnen: 
+D:\Enaio\Applikation\services\documentviewer\webapps\renditionplus\WEB-INF\classes\config
+ 
+ 
+ 
+Insgesamt 4 Config-Dateien öffnen: 
+ 
+Diese 4 Dateien muss man manuell anpassen: 
+Von "osrenditioncache"
+Bei "route.properties":  D:\Enaio\Applikation\services\documentviewer\webapps\osrenditioncache\WEB-INF\classes\config
+ 
+Zeile 12: finereader 
+ 
+ 
+ 
+Bei "config.properties" : D:\Enaio\Applikation\services\documentviewer\webapps\osrenditioncache\WEB-INF\classes\config
+ 
+Zeile 17: * statt "tif"
+So sollte es aussehen: 
+rendition.ocrSelectionPredicate=image/*,application/pdf
+ 
+Zeile 19: 10 GB
+Die Zeile soll so ausgesehen werden: 
+cache.maxSize=10GB
+' Denn ich habe hier bei E:\ nur 30 GiB. 
+' Maßstab zum Schätzen: weniger als 2/3 der Partition des Kunden: 
+' Z.B. 500 GB -> 320 GB für Cache
+' 400GB -> 180 GB oder 220 GB
+ 
+' Laufwerk: 
+' Dokumentviewer: bis 60% löschen. 
+' In Backup-Verzeichnis. 
+ 
+Zeile 40: cache.highWater.percent=80
+Zeile 42: cache.lowWater.percent=60
+ 
+ 
+ 
+Von "renditionplus"
+Bei "global-properties":  D:\Enaio\Applikation\services\documentviewer\webapps\renditionplus\WEB-INF\classes\config
+rendition.skip_msOffice=true
+' Das bedeutet, dass MS Office ignoriert wird. 
+' Denn keine Office wird hier bei Enaio-Basisinstallation installiert. 
+' Wenn Kunde schon ms office installiert hat, dann false. 
+' Das passiert vielleicht bei Enaio-Update. 
+ 
+Zeile 3: aspose muss immer false sein. 
+ 
+ 
+ 
+2.	Appconnector ist für Detailsvorschau zuständig.
+Documentviewer ist für Inhaltsvorschau zuständig. 
+Dazu gehört auch die OCR-Funktion. 
+Wenn "Volltextsuch" nicht funktioniert, dann ist der Grund, dass OCR nicht funktioniert, 
+Es kann sein, dass ein Lizenz von SMU fehlt. 
+Wenn die "Detailsvorschau", "Inhaltsvorschau" und "OCR" nicht funktionieren, 
+dann muss man die Registerinfos von enaio Enterprise-Manager überprüfen.
+Normalerweise füllt die enaio-Basisinstallation automatisch solche Infos aus, 
+Aber wenn Fehler auftreten, dann muss man selbst manuell anpassen und ausfüllen. 
+ 
+Zuerst überprüft man, ob die Infos bei enaio Enterprise-Manager wirklich angetragen werden oder nicht. 
+Enaio Enterprise-Manager öffnen -> "Console Root" -> "Enterprise Manager" -> "Servergruppen" -> "Ulm" -> "Applikationsserver" -> "Server 3 (hostname/OSDRT)" -> "Einstellungen" -> "Servereingenschaften":
+Auf der rechten Seite: -> "Kategorie": "Services".
+Vollständig muss es so auszusehen sein: 
+ 
+ 
+Wenn nicht, dann muss man die Infos (und zwar: die mit "http:// …") ausfüllen. 
+"Registrierungs-Editor" öffnen: 
+(Powershell-Befehl:
+Start-process regedit
+Oder einfach: 
+regedit )
+Dann: 
+"HKEY_LOCAL_MACHINE" -> "SOFTWARE" -> "OPTIMAL SYSTEM" -> "OSDRT" -> "Schemata" -> "4.0" -> "Services":
+Auf "Services" rechtsklicken -> "Exportieren" -> einen Namen geben "reg_services.reg" unter einem einfachen Ordner speichern. 
+Dann: 
+Die Regestrierungsdatei "reg_services.reg" mit Notepad++ öffnen: 
+ 
+Auf der Zeile 3 ist der Pfad dieser Reg-Datei. 
+ 
+Ab der Zeile 46 sind die Infos für die Services in Enaio Enterprise-Manager: 
+ 
+ 
+ 
+ 
+ 
+D.h. müssen die beiden zueinander entsprechen. 
+Z.B. bei Enaio Enterprise-Manager: 
+"Documentviewer" entspricht zu der Reg-Datei: 
+"[HKEY_LOCAL_MACHINE\SOFTWARE\OPTIMAL SYSTEMS\OSDRT\Schemata\4.0\Services\DocumentViewer]";
+"Home-URL" unter "Documentviewer" von Enaio Enterprise-Manager entspricht zur Reg-Datei: 
+"URL";
+"Service-Endpoint" von Enaio Enterprise-Manager   ----------------------- "API" von der Reg-Datei;
+"Service-Endpoint für Direktzugriff"                             ----------------------- "API_DIRECT" von der Reg-Datei;
+"Home-URL für Thumbnails"                                          ----------------------- "SendToURL "
+ 
+Jetzt ist eine Erklärung für die http-Adresse von "Documentviewer", z.B. 
+"URL"="http://WIN-OSOLDK3G682/applet/pdfview/web/viewer.html?osid={OBJECTIDENT}&sessionguid={sessionguid}&q={searchterm}"
+1.	"WIN-OSOLDK3G682" ist der Hostname des Servers. 
+2.	Pfad:
+/applet/pdfview/web/viewer.html
+3.	Query-Parameter (ad dem Fragezeichen ?)
+?osid={OBJECTIDENT}&sessionguid={sessionguid}&q={searchterm}
+Osid={OBJECTIDENT} ist Object ID
+Sessionguid ist Session GUID, die eine eindeutige ID für die aktuelle Benutzer Session. 
+q ist Query / Suchbegriff. 
+{OBJECTIDENT} ist Platzhalter für osid z.B. "12345678"
+{sessionguid} ist Platzhalter für sessionid z.B. "f3b7a6d1-4c58-46a9-8a4f-2f7b1ac9e05c"
+{searchterm} ist Platzhalter für q z.B. "Rechnung"
+Insgesamt bedeutet diese URL: 
+Auf dem Server "WIN-OSOLDK3G682" wird ein PDF-Dokument mit der Objekt-ID "12345678" im DocumentViewer angezeigt, in dem der Begriff "Rechnung" eingegeben wird. 
+ 
+ 
+4.	Benutzer von Elastic
+http://localhost:8041/cat_cat/health
+Es gibt zwei Möglichkeit, den Benutzer und das Passwort zu finden: 
+Möglichkeit 1: D:\Enaio\Applikation\services\elasticsearch7\config
+ 
+ 
+Möglichkeit 2: D:\Enaio\Applikation\services\service-manager\config
+ 
+ 
+
